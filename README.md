@@ -14,6 +14,10 @@ ChatGPT模型是由[OpenAI](https://openai.com/)训练的大型语言模型，�
 
 **[在 Gitee 上查看](https://gitee.com/PlexPt/awesome-chatgpt-prompts-zh)**
 
+## 实用工具
+
+- [Windows 网站关键词扫描器](./WINDOWS_SCANNER.md)：扫描指定网站的站内页面，支持一个或多个关键词、任意/全部匹配及 CSV 导出。
+
 ------
 
 # 图片实例
