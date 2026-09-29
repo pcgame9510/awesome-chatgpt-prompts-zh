@@ -89,12 +89,17 @@ class ScannerApp(tk.Tk):
         threading.Thread(target=self._run_crawler, daemon=True).start()
 
     def _run_crawler(self) -> None:
-        assert self._crawler is not None
-        self._crawler.crawl(
-            lambda url, done, waiting: self._events.put(("progress", (url, done, waiting))),
-            lambda result: self._events.put(("result", result)),
-        )
-        self._events.put(("done", None))
+        error = None
+        try:
+            assert self._crawler is not None
+            self._crawler.crawl(
+                lambda url, done, waiting: self._events.put(("progress", (url, done, waiting))),
+                lambda result: self._events.put(("result", result)),
+            )
+        except Exception as exc:
+            error = f"{type(exc).__name__}: {exc}"
+        finally:
+            self._events.put(("done", error))
 
     def _process_events(self) -> None:
         while True:
@@ -113,7 +118,12 @@ class ScannerApp(tk.Tk):
             elif kind == "done":
                 self.start_button.configure(state="normal")
                 self.stop_button.configure(state="disabled")
-                self.status_var.set(f"扫描结束，共找到 {len(self._results)} 个匹配页面")
+                self._crawler = None
+                if payload is not None:
+                    self.status_var.set(f"扫描失败：{payload}")
+                    messagebox.showerror("扫描失败", str(payload))
+                else:
+                    self.status_var.set(f"扫描结束，共找到 {len(self._results)} 个匹配页面")
         self.after(100, self._process_events)
 
     def _stop(self) -> None:
